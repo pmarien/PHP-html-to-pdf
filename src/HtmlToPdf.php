@@ -19,7 +19,7 @@ class HtmlToPdf
     private string $generatorUri = 'https://pdf.philipp-marien.de/generate';
 
     private array $options = [
-        'encoding' => 'uft-8'
+        'encoding' => 'utf-8'
     ];
 
     public function __construct(
