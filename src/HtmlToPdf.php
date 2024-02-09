@@ -16,6 +16,12 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 class HtmlToPdf
 {
+    private string $generatorUri = 'https://pdf.philipp-marien.de/generate';
+
+    private array $options = [
+        'encoding' => 'uft-8'
+    ];
+
     public function __construct(
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory,
@@ -25,7 +31,7 @@ class HtmlToPdf
     ) {
     }
 
-    private function minifyHtml(string $html): string
+    protected function minifyHtml(string $html): string
     {
         return preg_replace(
             [
@@ -43,10 +49,10 @@ class HtmlToPdf
         );
     }
 
-    private function generate(string $html): ResponseInterface
+    final protected function generate(string $html): ResponseInterface
     {
         $request = $this->requestFactory
-            ->createRequest('POST', 'https://pdf.philipp-marien.de/generate')
+            ->createRequest('POST', $this->getGeneratorUri() . '?' . http_build_query($this->getOptions()))
             ->withBody(
                 $this->streamFactory->createStream(
                     $this->minifyHtml($html)
@@ -74,7 +80,7 @@ class HtmlToPdf
         }
     }
 
-    private function filename(string $filename): string
+    final protected function filename(string $filename): string
     {
         if (!str_ends_with($filename, '.pdf')) {
             $filename .= '.pdf';
@@ -83,7 +89,7 @@ class HtmlToPdf
         return preg_replace("/[^A-Za-z0-9.\-]/", '_', $filename);
     }
 
-    private function createResponseFromGenerate(
+    protected function createResponseFromGenerate(
         string $filename,
         string $html,
         ContentDisposition $mode
@@ -92,6 +98,26 @@ class HtmlToPdf
             ->withBody($this->generate($html)->getBody())
             ->withHeader('Content-Disposition', $mode->getHeaderValue($this->filename($filename)))
             ->withHeader('Content-Type', 'application/pdf');
+    }
+
+    final public function getGeneratorUri(): string
+    {
+        return $this->generatorUri;
+    }
+
+    final  public function setGeneratorUri(string $generatorUri): void
+    {
+        $this->generatorUri = $generatorUri;
+    }
+
+    final public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    final public function setOptions(array $options): void
+    {
+        $this->options = $options;
     }
 
     public function createFile(string $filename, string $html): void
