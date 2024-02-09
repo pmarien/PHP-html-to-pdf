@@ -52,7 +52,10 @@ class HtmlToPdf
     final protected function generate(string $html): ResponseInterface
     {
         $request = $this->requestFactory
-            ->createRequest('POST', $this->getGeneratorUri() . '?' . http_build_query($this->getOptions()))
+            ->createRequest(
+                'POST',
+                $this->getGeneratorUri() . '?' . http_build_query(['options' => $this->getOptions()])
+            )
             ->withBody(
                 $this->streamFactory->createStream(
                     $this->minifyHtml($html)
