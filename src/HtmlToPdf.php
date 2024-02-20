@@ -16,7 +16,7 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 class HtmlToPdf
 {
-    private string $generatorUri = 'https://pdf.philipp-marien.de/generate';
+    private string $generatorUri = 'https://pdf-dev.flucava.de/generate';
 
     private array $options = [
         'encoding' => 'utf-8'
